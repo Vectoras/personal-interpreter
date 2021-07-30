@@ -1,6 +1,3 @@
-# Token types
-#
-
 INTEGER, PLUS, MINUS, MULTIPLY, DIVIDE, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'EOF'
 
 
@@ -13,7 +10,6 @@ class Token(object):
 
     def __str__(self):
         """String representation of the class instance.
-
         Examples:
             Token(INTEGER, 3)
             Token(PLUS '+')
@@ -91,46 +87,31 @@ class Interpreter(object):
         else:
             self.error()
 
+    def new_item(self):
+        item = self.current_token
+        self.eat(INTEGER)
+        return item.value
+
     def expr(self):
-
-        left = None;
         self.current_token = self.get_next_token()
+        result = self.new_item()
 
-        # working variable = banana variable
-
-        while self.current_token.type is not EOF:     
-
-            # working variable = working variable OPERATION banana variable
-            
-            if left is None:
-                left = self.current_token;
-                self.eat(INTEGER)
-
-            op = self.current_token
+        while self.current_token.type in (PLUS, MINUS, MULTIPLY, DIVIDE):
+            op = self.current_token    
             if op.type == PLUS:
                 self.eat(PLUS)
+                result += self.new_item()
             elif op.type == MINUS:
                 self.eat(MINUS)
+                result -= self.new_item()
             elif op.type == MULTIPLY:
                 self.eat(MULTIPLY)
+                result *= self.new_item()
             elif op.type == DIVIDE:
                 self.eat(DIVIDE)
+                result /= self.new_item()
 
-            right = self.current_token
-            self.eat(INTEGER)               
-            
-            if op.type == PLUS:
-                result = left.value + right.value
-            elif op.type == MINUS:
-                result = left.value - right.value
-            elif op.type == MULTIPLY:
-                result = left.value * right.value
-            elif op.type == DIVIDE:
-                result = left.value / right.value
-
-            left.value = result;
-
-        return left.value;
+        return result
 
 def main():
     while True:
